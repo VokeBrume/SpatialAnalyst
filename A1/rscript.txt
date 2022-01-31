@@ -1,0 +1,11 @@
+setwd("C:/Users/Brume Voke Rotimi/Documents/GEOG693C/A1")
+movies <- read.csv("matts_movies.csv", sep=",", header = TRUE)
+library(dplyr)
+movies %>% group_by(Genre) %>% count()
+#1. 16 (18 if duplicate genre due to first letter uppercase are counted seperately)
+
+library(forcats)
+common_genres <- fct_infreq(movies$Genre)
+head(fct_count(common_genres))
+#2. Drama (321)
+

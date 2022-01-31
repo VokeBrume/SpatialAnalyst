@@ -1,0 +1,151 @@
+---
+Name: Voke Brume
+Assignment: A6
+Date: 03/10/2021
+output:
+  html_document:
+    df_print: paged
+  rmdformats::readthedown:
+    self_contained: yes
+    thumbnails: yes
+    lightbox: yes
+    gallery: yes
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("C:/Users/Brume Voke Rotimi/Documents/GEOG693C/A6/ggplot2_pretty")
+library(ggplot2)
+library(dplyr)
+library(forcats)
+library(gapminder)
+library(ggthemes)
+library(reshape)
+library(cowplot)
+gapminder <- gapminder
+economics <- economics
+runoff_data <- read.csv("runoff_data_by_month.csv")
+mine_data <- read.csv("mine_classification_with_lidar.csv")
+```
+
+# Assignment 4
+#### by Voke Brume
+
+
+##### Graph 1: Unemployment Rate Time Series
+```{r}
+percent_unemployed <- economics %>% select(date, unemploy, pop) %>% mutate(unemployment.rate = (unemploy / pop) * 100)
+ump_rate_time_series <- ggplot(percent_unemployed, aes(x = date, y = unemployment.rate))+
+  geom_line(color = "red", size = 1)+
+  ggtitle("Unemployment Rate Time Series")+
+  labs(x = "Date", y = "Unemployment")+
+  theme_classic()+
+  scale_y_continuous(expand = c(0, 0), breaks = c(1, 2, 3, 4, 5, 6), limits = c(1, 6), labels = c("1%", "2%", "3%", "4%", "5%", "6%"))+
+  scale_x_date(expand = c(0, 0), date_breaks = "5 years", date_labels = "%Y", limits = as.Date(c('1965-01-01', '2015-04-01')))+
+  theme(plot.title = element_text(face = "bold", size = 18, color = "black"))+
+  theme(axis.text.y = element_text(size = 9, color = "black"))+
+  theme(axis.text.x = element_text(size = 9, color = "black"))+
+  theme(axis.title.y = element_text(face = "bold"))+
+  theme(axis.title.x = element_text(face = "bold"))
+ump_rate_time_series
+```
+
+
+##### Graph 2: Monthly Runoff Box Plot 
+```{r}
+runoff_box_plot <- ggplot(runoff_data, aes(x = factor (month, levels = month.abb), y = runoff, fill = month))+
+  geom_boxplot()+
+  ggtitle("Monthly Runoff Box Plot")+
+  labs(x = "Month", y = "Runoff [mm]")+
+  scale_y_continuous(expand = c(0, 0), breaks = c(0, 50, 100, 150, 200, 250, 300), limits = c(0, 300), labels = c("0mm", "50mm", "100mm", "150mm", "200mm", "250mm", "300mm"))+
+  theme_bw()+
+  theme(legend.position = "None")+
+  theme(plot.title = element_text(face = "bold", size = 18, color = "black"))+
+  theme(axis.title.y = element_text(face = "bold"))+
+  theme(axis.title.x = element_text(face = "bold"))+
+  theme(axis.text.y = element_text(size = 9, color = "red"))+
+  theme(axis.text.x = element_text(size = 9, color = "red"))
+runoff_box_plot
+```
+
+
+##### Graph 3: Gapminder Scatter Plot
+```{r}
+gapminder_scatter_plot <- ggplot(gapminder, aes(x = gdpPercap, y = lifeExp, color = continent, size = pop))+
+  geom_point()+
+  ggtitle("Gap Minder Scatter Plot")+
+  labs(x = "GDP per Capita", y = "Life Expectancy in Years", color = "Continent", size = "Population")+
+  theme_few()+
+  theme(plot.title = element_text(face = "bold", size = 18, color = "black"))+
+  theme(axis.title.y = element_text(face = "bold"))+
+  theme(axis.title.x = element_text(face = "bold"))+
+  theme(axis.text.y = element_text(size = 9, color = "red"))+
+  theme(axis.text.x = element_text(size = 9, color = "red"))+
+  theme(legend.title = element_text(face = "bold", size = 11))+
+  scale_x_continuous(breaks = c(0, 10000, 20000, 30000, 40000, 50000), labels = c("0", "10,000", "20,000", "30,000", "40,000", "50,000"), limits = c(0, 50000))+
+  scale_y_continuous(breaks = c( 40, 50, 60, 70, 80), limits = c(40, 80), labels = c("40", "50", "60", "70", "80"))
+gapminder_scatter_plot
+```
+
+
+##### Graph 4: Faceted Gapminder Scatter Plot
+```{r}
+data_africa_europe <- gapminder %>% filter((continent == "Africa" | continent == "Europe") & (year == 1977 | year == 2007))
+faceted_gapminder_scatter_plot <- ggplot(data_africa_europe, aes(x = gdpPercap, y = lifeExp, size = pop))+
+  geom_point()+
+  facet_grid(continent ~ year)+
+  ggtitle("Gap Minder Scatter Plot (Facet)")+
+  labs(x = "GDP per Capita", y = "Life Expectancy in Years", size = "Population")+
+  scale_size_continuous(breaks = c(5e+04, 1e+05,  1e+06,  1e+07,  1e+08,  1.5e+08), labels = c("50 Thousand", "100 Thousand", "1 Million", "10 Million", "100 Million", "150 Million"), limits = c(5e+04, 1.5e+08))+
+  scale_x_continuous(breaks = c(0, 10000, 20000, 30000, 40000, 50000), labels = c("0", "10,000", "20,000", "30,000", "40,000", "50,000"), limits = c(0, 50000))+
+  scale_y_continuous(breaks = c( 40, 50, 60, 70, 80), limits = c(40, 80), labels = c("40", "50", "60", "70", "80"))+
+  theme_bw()+
+  theme(plot.title = element_text(face = "bold", size = 18, color = "black"))+
+  theme(axis.title.y = element_text(face = "bold"))+
+  theme(axis.title.x = element_text(face = "bold"))+
+  theme(axis.text.y = element_text(size = 9, color = "red"))+
+  theme(axis.text.x = element_text(size = 9, color = "red"))+
+  theme(legend.title = element_text(face = "bold", size = 11, color = "red"))
+faceted_gapminder_scatter_plot
+```
+
+
+##### Graph 5: NDVI Box Plot
+```{r}
+ndvi_box_plot <- ggplot(mine_data, aes(x = class, y = ndvi, fill = class))+
+  geom_boxplot()+
+  ggtitle("NDVI Box Plot")+
+  labs(x = "Land Cover Type", y = "Normalized difference Vegetation Index", size = "Population")+
+  scale_fill_manual(values = c("#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e"), labels = c("Barren", "Forrest", "Herbaceous", "Woodlands", "Water"))+
+  scale_x_discrete(labels = c("Barren", "Forrest", "Herbaceous", "Woodlands", "Water"))+
+  theme_bw()+
+  theme(plot.title = element_text(face = "bold", size = 18, color = "black"))+
+  theme(axis.title.y = element_text(face = "bold"))+
+  theme(axis.title.x = element_text(face = "bold"))+
+  theme(axis.text.y = element_text(size = 9, color = "red"))+
+  theme(axis.text.x = element_text(size = 9, color = "red"))+
+  theme(legend.position = "None")
+ndvi_box_plot
+```
+
+
+##### Bonus Credit 1: Using Cowplot
+```{r}
+plot_grid(ump_rate_time_series, NULL, NULL, runoff_box_plot, nrow = 2)
+```
+
+##### Bonus Credit 2: Scatter plot with percent of the population with a college education
+```{r}
+ggplot(midwest, aes(x = percollege, y = percprof, color = percbelowpoverty, size = popdensity))+
+  geom_point( )+
+  ggtitle("Scatter Plot")+
+  labs(x = "Percent Below Poverty Line", y = "Percentage with College Education", size = "Population", color = "% Below Poverty")+
+  theme_bw()+
+  theme(plot.title = element_text(face = "bold", size = 18, color = "black"))+
+  theme(axis.title.y = element_text(face = "bold"))+
+  theme(axis.title.x = element_text(face = "bold"))+
+  theme(axis.text.y = element_text(size = 9, color = "red"))+
+  theme(axis.text.x = element_text(size = 9, color = "red"))+
+  theme(legend.title = element_text(face = "bold", size = 11, color = "red"))
+```
