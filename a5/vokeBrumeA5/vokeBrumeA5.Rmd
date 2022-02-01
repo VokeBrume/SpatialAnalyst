@@ -1,0 +1,181 @@
+---
+Name: Voke Brume
+Assignment: A4
+Date: 03/04/2021
+output:
+  html_document:
+    df_print: paged
+  rmdformats::readthedown:
+    self_contained: yes
+    thumbnails: yes
+    lightbox: yes
+    gallery: yes
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(forcats)
+midwest <- midwest
+economics <- economics
+mpg <- mpg
+```
+
+# Assignment 4
+#### by Voke Brume
+
+
+##### Graph 1: Create a histogram of the percent of the population below poverty (“percbelowpoverty”) using a binwidth of 5.
+```{r}
+ggplot(midwest, aes(x=percbelowpoverty))+
+  geom_histogram(binwidth=5)
+```
+
+
+
+##### Graph 2: Create a kernel density plot of the percent of the population below poverty (“percbelowpoverty”) and include a fill color of your choosing.
+```{r}
+ggplot(midwest, aes(x=percbelowpoverty))+
+  geom_density(fill = "red")
+```
+
+
+
+##### Graph 3: Create a combined histogram and kernel density plot of the percent of the population below poverty (“percbelowpoverty”). Make sure to define the y-axis as density. For the histogram, use a binwidth of 5, a color of your choosing, and a fill of you choosing. For the kernel density component, set a color, line weight, fill color, and transparency.
+```{r}
+ggplot(midwest, aes(x=percbelowpoverty, ..density..))+
+   geom_histogram(binwidth=5, fill = "green", color = "yellow")+
+  geom_density(fill = "#DB5B43", color = "red", size = 1, alpha = 0.5)
+```
+
+
+##### Graph 4: Create a kernel density plot of the percent of the population below poverty (“percbelowpoverty”) with separate curves for each state. Assign density to the y-axis and use a fill color to differentiate the states. Also provide a transparency so that curves can be more easily visualized where they overlap.
+```{r}
+ggplot(midwest, aes(x=percbelowpoverty, ..density.., fill = state))+
+  geom_density(alpha = 0.4)
+```
+
+
+##### Graph 5: Create a kernel density plot with the same settings as Graph 4; however, only include curves for the states of Indiana and Michigan.
+```{r}
+indiana_michigan <- midwest %>% filter(state == "IN" | state == "MI")
+ggplot(indiana_michigan, aes(x=percbelowpoverty, ..density.., fill = state))+
+  geom_density(alpha = 0.5)
+```
+
+
+##### Graph 6: Create a kernel density plot of percent of the population with a college degree (“percollege”) with density mapped to the y-axis and states differentiated using a fill color. Also provide a transparency so that curves can be more easily visualized where they overlap.
+```{r}
+ggplot(midwest, aes(x=percollege, ..density.., fill = state))+
+  geom_density(alpha = 0.3)
+```
+
+
+##### Graph 7: Create a kernel density plot with the same settings as Graph 6; however, only include curves for the states of Indiana and Michigan.
+```{r}
+ggplot(indiana_michigan, aes(x=percollege, ..density.., fill = state))+
+  geom_density(alpha = 0.5)
+```
+
+
+##### Graph 8: Create a box plot of percent of the population with a college degree (“precollege”) with different plots for each state. Also, differentiate the states using a fill color.
+```{r}
+ggplot(midwest, aes(x=fct_reorder(state, percollege, .fun = median, .desc = TRUE), y = percollege, fill = state))+
+  geom_boxplot()
+```
+
+
+##### Graph 9: Create a combined violin and box plot of percent of the population with a college degree (“percollege”) with different plots for each state. Differentiate the states using a fill applied to the violin
+plot. Alter the box plots so that they are all the same color (fill not used to differentiate states) and fit within the associated violin plot
+```{r}
+ggplot(midwest, aes(x = fct_reorder(state, percollege, .fun = median, .desc = TRUE), y = percollege, fill = state))+
+  geom_violin()+
+  geom_boxplot(width = 0.1, fill = "gray")
+```
+
+
+##### Graph 10: Create a bar graph of mean percent of the population with professional employment (“percprof”) by state. You will need to summarize the county-level data by state to obtain the state means. Within geom_bar() you will need to set stat equal to “identity.
+```{r}
+ggplot(midwest %>% group_by(state) %>% summarize(mean_percprof = mean(percprof)), aes(x = state, y = mean_percprof, fill = state))+
+  geom_bar(stat = "identity")
+```
+
+
+##### Graph 11: Create a scatter plot of percent of the population with a college degree (“percollege”) mapped to the x-axis and percent of the population below the poverty line (“percbelowpoverty”) mapped to the y-axis.
+```{r}
+ggplot(midwest, aes(x = percollege, y = percbelowpoverty))+
+  geom_point(shape = 23, color = "blue", fill = "red", size = 2)
+```
+
+
+##### Graph 12: Add a loess curve to the graph created in 12
+```{r}
+ggplot(midwest, aes(x = percollege, y = percbelowpoverty))+
+  geom_point(shape = 23, color = "blue", fill = "red", size = 2)+
+  geom_smooth(method = loess)
+```
+
+
+##### Graph 13: Create a scatter plot with percent of the population with a college education (“precollege”) mapped to the x-axis, percent of the population below the poverty line (“percbelowpoverty”) mapped to the point color and population density (“popdensity”) mapped to the point size. 
+```{r}
+ggplot(midwest, aes(x = percollege, y = percprof, color = percbelowpoverty, size = popdensity))+
+  geom_point( )
+```
+
+### Switch to the economics data frame included with ggplot2. These data represent US economic time series data from <http://research.stlouisfed.org/fred2>. You should generate a new data
+frame from these data. 
+
+
+##### Graph 14: Create a new variable of unemployment rate using the number of unemployed people (“unemploy”) and the total population (“pop”). Create a time series line graph with the date (“date”) mapped to the x-axis and your new unemployment rate variable mapped to the y-axis
+```{r}
+unemployment_rate <- economics %>% select(date, unemploy, pop) %>% mutate(unemployment.rate = unemploy / pop)
+ggplot(unemployment_rate, aes(x = date, y = unemployment.rate))+
+  geom_line( )
+```
+
+### For the last set of graphs, you will use the mpg data also included with ggplot2, which contains a subset of the fuel economy data that the EPA makes available on <http://fueleconomy.gov> and contains only vehicle models which had a new release every year between 1999 and 2008. 
+
+
+##### Graph 15: : Create a box plot with the class of the vehicles (“class”) mapped to the x-axis and fill color and the highway fuel economy (“hwy”) mapped to the y-axis.
+```{r}
+ggplot(mpg, aes(x=fct_reorder(class, hwy, .fun = median, .desc = TRUE), y = hwy, fill = class))+
+  geom_boxplot()
+```
+
+
+##### Graph 16: Reproduce the box plot created in Graph 15, but only include data from 2008.
+```{r}
+ggplot(mpg %>%filter(year == "2008") , aes(x=fct_reorder(class, hwy, .fun = median, .desc = TRUE), y = hwy, fill = class))+
+geom_boxplot()
+```
+
+##### Graph 17: Generate a kernel density plot of city fuel economy (“cty”). Make sure to map density to the y-axis. To differentiate the model year, map the year (“year”) to the fill color. Note that you will need to define it as a factor. Also, provide a transparency so that data can be visualized in overlapping areas.
+```{r}
+ggplot(mpg, aes(x=cty, ..density.., fill = as.factor(year)))+
+  geom_density(alpha = 0.4)
+```
+
+
+##### Graph 18: Use just models from 2008, create a scatter plot with city fuel economy (“cty”) mapped to the x-axis and highway fuel economy (“hwy”) mapped to the y-axis. Also, add a loess curve.
+```{r}
+ggplot(mpg %>% filter(year == "2008"), aes(x = cty, y = hwy))+
+  geom_point(shape = 23, color = "blue", fill = "red", size = 2)+
+  geom_smooth(method = loess)
+```
+
+
+##### Graph 19: : Create a box plot for just models from 2008 to compare highway fuel economy (“hwy”) between different drive systems (4-wheel, front-wheel, rear-wheel) using the “drv” field. Assign “drv” to the x-axis and fill color. Map the highway fuel economy (“hwy”) to the y-axis.
+```{r}
+ggplot(mpg %>% filter(year == "2008"), aes(x=fct_reorder(drv, hwy, .fun = median, .desc = TRUE), y = hwy, fill = drv))+
+  geom_boxplot()
+```
+
+
+##### Graph 20: Add a violin plot to the graph generated in Graph 19 to produce a combined violin and box plot. The fill color for the violin plot should differentiate the drive type (“drv”). The box plots should all have the same fill color and should fit within the associated violin plot.
+```{r}
+ggplot(mpg %>% filter(year == "2008"), aes(x=fct_reorder(drv, hwy, .fun = median, .desc = TRUE), y = hwy, fill = drv))+
+  geom_violin()+
+  geom_boxplot(width = 0.1, fill = "gray")
+```
